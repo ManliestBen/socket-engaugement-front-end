@@ -1,7 +1,8 @@
 // npm modules
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom'
-
+import { socket } from './services/socket'
+// import socketIO from 'socket.io-client'
 // page components
 import Signup from './pages/Signup/Signup'
 import Login from './pages/Login/Login'
@@ -21,7 +22,25 @@ import './App.css'
 
 const App = () => {
   const [user, setUser] = useState(authService.getUser())
+  const [numActive, setNumActive] = useState(0)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    socket.on('update-users', data => {
+      console.log('users', data)
+      setNumActive(data)
+    })
+
+    socket.on('send-msg', data => {
+      console.log('send msg', data)
+    })
+    
+    return () => {
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('update-users');
+    };
+  }, [])
 
   const handleLogout = () => {
     authService.logout()
@@ -37,7 +56,7 @@ const App = () => {
     <>
       <NavBar user={user} handleLogout={handleLogout} />
       <Routes>
-        <Route path="/" element={<Landing user={user} />} />
+        <Route path="/" element={<Landing numActive={numActive} socket={socket} user={user} />} />
         <Route
           path="/signup"
           element={<Signup handleSignupOrLogin={handleSignupOrLogin} />}
