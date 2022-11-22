@@ -3,8 +3,8 @@ import styles from './Landing.module.css'
 const Landing = ({ user, socket, numActive }) => {
 
   const sendEmitTest = () => {
-    socket.emit('emit-test', {
-      user: user
+    socket.emit('declare-confusion', {
+      user: user.profile
     })
   }
 

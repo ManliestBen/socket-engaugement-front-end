@@ -23,24 +23,26 @@ import './App.css'
 const App = () => {
   const [user, setUser] = useState(authService.getUser())
   const [numActive, setNumActive] = useState(0)
+  const [flags, setFlags] = useState([])
   const navigate = useNavigate()
 
   useEffect(() => {
+    const addFlag = timeStamp => {
+      setFlags(prevFlags => [...prevFlags, timeStamp])
+    }
     socket.on('update-users', data => {
-      console.log('users', data)
       setNumActive(data)
     })
 
-    socket.on('send-msg', data => {
-      console.log('send msg', data)
-    })
+    socket.on('add-flag', addFlag)
     
     return () => {
-      socket.off('connect');
-      socket.off('disconnect');
+      socket.off('send-msg');
+      socket.off('add-flag');
       socket.off('update-users');
     };
   }, [])
+  
 
   const handleLogout = () => {
     authService.logout()
